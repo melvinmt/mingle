@@ -1,4 +1,4 @@
-Usage
+## Usage
 
 ```php
   $get = Mingle::get('users')
