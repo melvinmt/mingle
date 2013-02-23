@@ -8,7 +8,6 @@ class Mingle_Query{
 	private $domain;
 	private $wheres = array();
 	private $order_by = array();
-	// private $select = '*';
 	private $limit = NULL;
 	private $all = false;
 	private $all_opts = NULL;
@@ -25,29 +24,14 @@ class Mingle_Query{
 	public $select = array();
 	
 	public function __construct($collection){
-	
-		$this->profiler[] = Profiler::start(__CLASS__, 'TOTAL');
-				
+					
 		$db = Mingle::instance();
-		
-		// $db->setProfilingLevel(1);
-		
+				
 		$this->collection_id = $collection;
 		$this->collection = $db->{$collection};
 		
 	}
 	
-	public function __destruct(){
-		
-	}	
-	
-	public function consistent($consistent = true){
-		
-		// $this->consistent = (bool) $consistent;
-		
-		return $this;
-		
-	}
 	
 	public function cache($expire){
 		
@@ -60,45 +44,6 @@ class Mingle_Query{
 		}
 		
 		return $this;
-	}
-	
-	public function all(){
-		
-		// $this->all = true;
-		
-		return $this;
-	}
-	
-	private function repeat($times = 1){
-		
-		// $this->all = true;
-		// $this->all_opts = (int) $times;
-		
-		return $this;
-	}
-	
-	private function NextToken($next_token){
-		
-		// $this->all = true;
-		// $this->all_opts = strval($next_token);
-		
-		return $this;	
-	}
-	
-	public function from($domain){
-		
-		// $this->domain = $domain;
-		
-		return $this;
-	}
-	
-	private function add_where($logical, $clause){
-		
-		// strip slashes if clause contains itemName();
-		// $clause = str_replace('`itemName()`', 'itemName()', $clause);
-		
-		// $this->wheres[] = array('logical' => $logical, 'clause' => $clause);
-		
 	}
 	
 	private function _operator($operator){
@@ -126,20 +71,19 @@ class Mingle_Query{
 		
 	}
 	
+	public function where($field, $operator, $value){
+		return $this->and_where($field, $operator, $value);
+	}
+	
 	public function and_where($field, $operator, $value){
 	    
 		if($field == 'itemName()'){
 			$field = 'itemName';
 		}
 		
-		if(is_bool($value)){
-			$value = intval($value);
-		}
-	
-	   if($operator == '='){
+	  	if($operator == '='){
 			
 			$this->wheres[$field]['$all'][] = $value;
-			// $this->wheres[$field] = $value;
 			
 		}else{
 			
@@ -158,12 +102,8 @@ class Mingle_Query{
 			$field = 'itemName';
 		}
 		
-		if(is_bool($value)){
-			$value = intval($value);
-		}
-		
 
-	   if($operator == '='){
+	   	if($operator == '='){
 
 			$this->wheres['$or']['in'][$field]['$in'][] = $value;
 
@@ -294,9 +234,9 @@ class Mingle_Query{
 	
 	public function and_every($field, $operator, $value){
 	    
-	    if(is_bool($value)){
-	        $value = intval($value);
-        }	    
+		if(is_bool($value)){
+	        	$value = intval($value);
+        	}	    
 		
 		if(is_numeric($value)){
 			$value = sprintf('%016.6f', $value);
@@ -310,9 +250,9 @@ class Mingle_Query{
 	
 	public function or_every($field, $operator, $value){
 	    
-	    if(is_bool($value)){
-	        $value = intval($value);
-        }	    
+		if(is_bool($value)){
+			$value = intval($value);
+        	}	    
 		
 		if(is_numeric($value)){
 			$value = sprintf('%016.6f', $value);
@@ -360,22 +300,6 @@ class Mingle_Query{
 	}
 	
 	public function execute(){
-		
-		
-		$profiler1 = Profiler::start(__CLASS__, 'execute');
-		
-		
-		// $profiler = Profiler::start(__CLASS__, 'ensureIndex');
-		
-		// debug($this->fields);
-		
-		// $this->collection->ensureIndex($this->fields, array('background' => true));
-		
-		// Profiler::stop($profiler);
-		
-		
-		// $indexes = $this->collection->getIndexInfo();
-		// debug($indexes);
 				
 		if(isset($this->wheres['$or']['in'])){
 			
@@ -387,19 +311,13 @@ class Mingle_Query{
 				$this->wheres['$or'][][$key] = $value;
 			}
 			
-			// $this->wheres['$or'] = array_values($this->wheres['$or']);
 		}
-		
-		// debug($this->wheres);
-		
-		$profiler = Profiler::start(__CLASS__, 'find');
 		
 		if(empty($this->select)){
 			$cursor = $this->collection->find($this->wheres);
 		}else{
 			$cursor = $this->collection->find($this->wheres, $this->select);
 		}
-		Profiler::stop($profiler);
 	
 		$this->success = true;
 		
@@ -410,8 +328,6 @@ class Mingle_Query{
 			$profiler = Profiler::start(__CLASS__, 'skip');
 			
 			$cursor->skip( ($this->page - 1) * $this->limit);
-			Profiler::stop($profiler);
-			
 		}
 		
 		// add limit
@@ -419,50 +335,27 @@ class Mingle_Query{
 			$profiler = Profiler::start(__CLASS__, 'limit');
 			
 			$cursor->limit(intval($this->limit));
-			Profiler::stop($profiler);
-			
 		}
 		
 		// add sorting
 		if(!empty($this->order_by)){
-			$profiler = Profiler::start(__CLASS__, 'sort');
 			
 			$cursor->sort($this->order_by);
-			Profiler::stop($profiler);
 			
 		}
-			$profiler = Profiler::start(__CLASS__, 'rewind');
 			
 		$cursor->reset();
-		
-		Profiler::stop($profiler);
-		
-		$profiler = Profiler::start(__CLASS__, 'iterate');
-		
+
 		$this->items = array();
 		foreach ($cursor as $obj) {
 		  $this->items[] = $obj;
 		}		
-		
-		Profiler::stop($profiler);
 	
 		$this->count = $cursor->count();
 	
 		$this->is_empty = ($this->count == 0) ? true : false;
 
-	
 		$this->not_empty_success = ($this->success AND !$this->is_empty) ?: false;
-		
-		// debug($this);
-		
-		Profiler::stop($profiler1);
-		
-			if(isset($this->profiler) AND !empty($this->profiler) AND is_array($this->profiler)){
-
-				foreach ($this->profiler as $profiler){
-					Profiler::stop($profiler);
-				}
-			}
 		
 		return $this;
 	}
@@ -491,9 +384,4 @@ class Mingle_Query{
 		
 	}
 
-	
-	public function response(){
-	
-		// return $this->response;
-	}
 }
