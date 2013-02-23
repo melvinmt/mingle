@@ -9,8 +9,6 @@ class Mingle_Item implements ArrayAccess{
 
 	public function __construct($collection, $id = NULL, array $values = NULL){
 
-		$this->profiler[] = Profiler::start(__CLASS__, 'TOTAL');
-
 		$db = Mingle::instance();
 
 		$this->collection_id = $collection;
@@ -18,12 +16,8 @@ class Mingle_Item implements ArrayAccess{
 
 		if($id !== NULL){
 
-			$profiler = Profiler::start(__CLASS__, 'findOne');
-
 			// try to retrieve item from database
 			$from_db = $this->collection->findOne(array("id" => $id));
-
-			Profiler::stop($profiler);
 
 			if(!empty($from_db)){
 				$this->values($from_db);
@@ -47,29 +41,9 @@ class Mingle_Item implements ArrayAccess{
 
 	}
 
-	public function __destruct(){
-
-		// $db = Mingle::instance();
-
-		// $this->collection_id = $collection;
-		// $this->collection = $db->{$collection};
-
-		if(isset($this->profiler) AND !empty($this->profiler) AND is_array($this->profiler)){
-
-			foreach ($this->profiler as $profiler){
-				Profiler::stop($profiler);
-			}
-		}
-
-		// $this->collection->save($this->data, array("safe" => true));
-	}
-
 	public function save(){
 
 		$db = Mingle::instance();
-		$this->collection = $db->{$this->collection_id};
-
-		$profiler = Profiler::start(__CLASS__, 'save');
 
 		$this->data['_collection'] = $this->collection_id;
 
@@ -96,7 +70,6 @@ class Mingle_Item implements ArrayAccess{
 
 		}
 
-		Profiler::stop($profiler);
 	}
 
 	public function id(){
