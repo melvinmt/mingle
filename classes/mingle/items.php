@@ -17,7 +17,6 @@ class Mingle_Items implements Iterator, ArrayAccess{
 				
 				if(isset($item['id'])){
 					$id = $item['id'];
-					// unset($item['_id']);
 					
 					$this->items[] = new Mingle_Item($collection, $id, $item);
 				}else{
