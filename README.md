@@ -10,14 +10,14 @@
 
   if ($get->not_empty_success)
   {
-    $item = $get->item(); // first item as Mingle_Item object
-    $items = $get->items; // flat array
-    $items = $get->items(); // list of Mingle_Item objects
+    $user = $get->item(); // first item as Mingle_Item object
+    $users = $get->items; // flat array
+    $users = $get->items(); // list of Mingle_Item objects
     
-    foreach ($items as $item)
+    foreach ($users as $user)
     {
-      $item->age += 1;
-      $item->save();
+      $user->age += 1;
+      $user->save();
     }
   }
 
